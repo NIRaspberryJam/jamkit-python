@@ -109,6 +109,9 @@ class Head:
         s.onkey(left, "Left")
         s.onkey(right, "Right")
         s.listen()
+    
+    def centre(self, grid: Grid):
+        self.x, self.y, self.dx, self.dy = grid.cols//2, grid.rows//2, 1, 0
 
 class Item:
     def __init__(self, grid: Grid, color="red"):

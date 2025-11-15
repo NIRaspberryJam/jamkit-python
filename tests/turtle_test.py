@@ -1,5 +1,5 @@
 # pi_eater.py — using jamkit.py
-from jamkit.turtle import Grid, Head, ImageItem, Item, draw_tail, hits
+from jamkit.turtle import Grid, Head, ImageItem, draw_tail, hits
 from jamkit import sprites
 
 # 32 x 40, 30
@@ -8,7 +8,7 @@ head = Head(g, color="lime")
 head.bind_arrows()
 
 raspberry = ImageItem(g, sprites.raspberry)
-pi_bad = Item(g, color="red")
+bug = ImageItem(g, sprites.bug)
 
 score = 0
 tail = [] # list of (x,y)
@@ -37,16 +37,16 @@ def step():
         raspberry.place(avoid=set(tail + [(head.x, head.y)]))
 
     # if hit bug
-    if hits(head, pi_bad):
+    if hits(head, bug):
         game_over = True
-        g.message("GAME OVER — press R to restart", y=0, color="white")
+        g.message("GAME OVER - press R to restart", y=0, color="white")
         g.update()
         return
 
     # draw
     g.clear()
     raspberry.draw()
-    pi_bad.draw()
+    bug.draw()
     draw_tail(g, tail, color="green")
     head.draw()
     g.write_hud(f"Score: {score}")
@@ -56,11 +56,10 @@ def reset():
     global score, grow, game_over, tail
     score, grow, game_over = 0, 0, False
     tail.clear()
-    head.x, head.y, head.dx, head.dy = g.cols//2, g.rows//2, 1, 0
+    head.centre(g)
     raspberry.place()
-    pi_bad.place()
+    bug.place()
     g.clear()
-    g.write_hud(f"Score: {score}")
     g.update()
 
 g.screen = g.screen  # access for keys
