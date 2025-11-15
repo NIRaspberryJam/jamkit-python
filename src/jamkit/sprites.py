@@ -17,3 +17,5 @@ class Sprite:
 
 # Public sprites for kids to use
 raspberry = Sprite("raspberry", "raspberry.gif")
+bug = Sprite("bug", "bug.gif")
+fork = Sprite("fork", "fork_full.gif")
