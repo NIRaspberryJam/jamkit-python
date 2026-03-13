@@ -1,6 +1,6 @@
 # pi_eater.py — using jamkit.py
-from jamkit.turtle import Grid, Head, ImageItem, draw_tail, hits
-from jamkit import sprites
+from jamkit.jam_collector.turtle import Grid, Head, ImageItem, draw_tail, hits
+from jamkit.jam_collector import sprites
 
 # 32 x 40, 30
 g = Grid(cell=32, width=1280, height=960, title="Pi Eater", bg="black")

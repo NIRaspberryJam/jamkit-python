@@ -1,0 +1,41 @@
+{
+    "workshop_id": "hack_the_robot",
+    "robot_name": "JAMBOT-7",
+    "connect_lines": [
+        "Boot sequence link requested...",
+        "Secure tunnel established.",
+        "Warning: recovery mode active.",
+        "Robot memory is damaged. Operator assistance required."
+    ],
+    "assets": {
+        "msg_1": {
+            "type": "string",
+            "value": "Difdl uif mpht! sfqbjs_bddpvou vtfs je: twd_311 ???"
+        }
+    },
+    "missions": [
+        {
+            "id": "MISSION 1",
+            "title": "Decode the distress message",
+            "intro": [
+                "A distress message was stored just before the robot lost control.",
+                "It is stored in memory as msg_1",
+                "Read it, decode it with a Caesar shift of 1, and submit the decoded message."
+            ],
+            "assets": ["msg_1"],
+            "hints": [
+                "Try robot.read_memory(msg_1) first.",
+                "Use a loop to go through each character.",
+                "Use chr(ord(letter) - 1) to shift a letter backwards."
+            ],
+            "expected_answer": "check the logs! repair_account user id: svc_311 ???",
+            "success_lines": [
+                "Distress message restored.",
+                "Clue found: command logs may reveal what happened."
+            ],
+            "failure_lines": [
+                "[JAMBOT-7] Distress message does not match expected recovery output."
+            ]
+        }
+    ]
+}
