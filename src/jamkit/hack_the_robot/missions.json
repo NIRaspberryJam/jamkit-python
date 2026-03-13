@@ -102,16 +102,16 @@
             "title": "Recover and decode the distress message",
             "intro": [
                 "A distress message was saved just before JAMBOT-7 was compromised.",
-                "Read msg_1 from memory, decode it with a Caesar shift of 1, and submit the recovered message.",
-                "The decoded text gives partial clues, not the full recovery command."
+                "For decoding method and character-shift functions, refer to Manual Section 1.1 (Shifted Messages).",
+                "Submit the fully decoded message text."
             ],
             "assets": [
                 "msg_1"
             ],
             "hints": [
-                "Start with robot.read_memory(msg_1) so the robot terminal gives context.",
-                "Loop over each character in msg_1.",
-                "For letters, use chr(ord(ch) - 1). Keep punctuation as-is."
+                "If output is close but wrong, confirm you only shift letters and leave spaces/punctuation unchanged.",
+                "Decode the entire message before submit; partial decoding will fail validation.",
+                "Use robot.show(decoded) and compare your result against the story clue wording."
             ],
             "expected_answer": "Check the logs! Unusual activity detected. look for logs containing LOCKOUT, override, or unauthorised.",
             "validator": "case_insensitive",
@@ -128,17 +128,16 @@
             "title": "Search the command logs",
             "intro": [
                 "Use logs_1 to find suspicious commands and identify the rogue service account user id.",
-                "The log is very long as it shows all recent commands in the system.",
-                "Use code to speed up the search process.",
+                "Refer to Manual Sections 2.1-2.3 for loop/filter/extract patterns for log data.",
                 "Submit only the rogue user id."
             ],
             "assets": [
                 "logs_1"
             ],
             "hints": [
-                "Try: for line in logs_1: ...",
-                "Use if checks for words like LOCKOUT, override, or unauthorized.",
-                "Once you spot the repeated account, submit that user id."
+                "Substring checks are case-sensitive; include both uppercase and lowercase variants if needed.",
+                "Once you extract a confirmed user id, break early instead of scanning every remaining line.",
+                "Submit only the id token (for example: svc_311), not the full log line."
             ],
             "expected_answer": "svc_311",
             "validator": "case_insensitive",
@@ -154,17 +153,18 @@
             "id": "MISSION 3",
             "title": "Reconstruct the split repair PIN",
             "intro": [
-                 "The rogue account PIN is fragmented in memory.",
+                "The rogue account PIN is fragmented in memory.",
                 "Use pin_parts_1 to generate candidate PINs from prefix + suffix combinations.",
+                "Refer to Manual Sections 3.1-3.3 for dictionary access, nested loops, and candidate checks.",
                 "Test each candidate with robot.check_pin(rogue_user_id, candidate) and submit the valid PIN."
             ],
             "assets": [
-                "pins_1"
+                "pin_parts_1"
             ],
             "hints": [
-                "Read the asset first: robot.read_memory(pin_parts_1).",
-                "Use nested loops: one loop for prefixes, one for suffixes.",
-                "Build candidate = prefix + suffix. Stop when robot.check_pin(...) returns True."
+                "Create local variables for prefixes and suffixes first to keep nested loops readable.",
+                "Keep candidate values as strings when combining prefix + suffix.",
+                "When a PIN succeeds, break inner loop and then break outer loop too."
             ],
             "metadata": {
                 "user_id": "svc_311"
@@ -177,7 +177,7 @@
                 }
             },
             "success_lines": [
-                 "PIN reconstructed from fragmented memory.",
+                "PIN reconstructed from fragmented memory.",
                 "Privileged service access restored."
             ],
             "failure_lines": [
@@ -189,6 +189,7 @@
             "title": "Assemble the recovery profile",
             "intro": [
                 "Now inspect account_1 to prepare a full recovery profile.",
+                "Refer to Manual Sections 4.1-4.3 for choosing best backup slot and cleaning sector targets.",
                 "Choose the best backup slot from backup_slots: status must be 'ready' and integrity must be highest.",
                 "Collect all sectors from corrupted_sector_groups, remove duplicates, sort them, and submit a recovery profile dict."
             ],
@@ -196,9 +197,9 @@
                 "account_1"
             ],
             "hints": [
-                "Run robot.read_memory(account_1), then inspect account_1 keys.",
-                "Loop through backup_slots and keep the best ready slot by integrity.",
-                "Use a set for unique sectors, then sorted(...) before submit."
+                "If no slot is selected, check your ready-status filter and best-slot comparison logic.",
+                "repair_targets must be both unique and sorted for validation to pass reliably.",
+                "Submit a dict with exact keys: backup_slot and repair_targets."
             ],
             "expected_answer": {
                 "backup_slot": "B7",
@@ -225,16 +226,17 @@
             "title": "Build and submit the restore command",
             "intro": [
                 "Write a Python function that builds the final restore command using the data you recovered.",
-                "Command format: RESTORE --user <id> --pin <pin> --slot <slot> --repair",
+                "Refer to Manual Sections 5.1-5.3 (and 4.1 for dictionary key access reminders).",
+                "Command format: RESTORE --user <id> --pin <pin> --slot <slot> --targets <csv> --repair",
                 "Submit the command string to trigger final reboot."
             ],
             "assets": [
                 "account_1"
             ],
             "hints": [
-                "Define a function like make_restore_command(user_id, pin, slot).",
-                "Return one formatted string from the function.",
-                "Use user_id='svc_311', pin='4281', slot='B7'."
+                "Build the targets CSV in a separate variable first, then place it into the command string.",
+                "Ensure there are no extra spaces, missing flags, or line breaks in the final command.",
+                "Use robot.show(command) to verify final flag order before submitting."
             ],
             "expected_answer": "RESTORE --user svc_311 --pin 4281 --slot B7 --targets 12,13,21,22,30 --repair",
             "validator": "restore_command",
