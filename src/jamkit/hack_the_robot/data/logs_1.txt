@@ -1,0 +1,101 @@
+09:10:00 INFO  auth            user=maint_101 action=login status=ok channel=terminal
+09:10:02 INFO  command         user=maint_101 cmd=CHECK_TEMP status=ok
+09:10:05 INFO  command         user=maint_101 cmd=CHECK_PRESSURE status=ok
+09:10:08 INFO  command         user=maint_101 cmd=CHECK_BATTERY status=ok
+09:10:12 INFO  diagnostics     module=arm-actuator result=ok
+09:10:16 INFO  diagnostics     module=wheel-motor result=ok
+09:10:20 INFO  auth            user=svc_204 action=login status=ok
+09:10:21 INFO  command         user=svc_204 cmd=SYNC_CLOCK status=ok
+09:10:24 INFO  command         user=svc_204 cmd=PING_BACKUP status=ok
+09:10:28 INFO  network         route=maintenance-vpn status=stable
+09:10:32 INFO  auth            user=maint_203 action=login status=ok channel=terminal
+09:10:34 INFO  command         user=maint_203 cmd=CHECK_LIDAR status=ok
+09:10:38 INFO  command         user=maint_203 cmd=CHECK_SONAR status=ok
+09:10:42 INFO  watchdog        state=normal mode=service
+09:10:45 INFO  command         user=svc_118 cmd=CACHE_CLEAR status=ok
+09:10:49 INFO  auth            user=svc_118 action=logout status=ok
+09:10:54 INFO  command         user=maint_101 cmd=CHECK_CAMERA status=ok
+09:10:58 INFO  memory          user=system sector=02 action=read status=ok
+09:11:02 INFO  memory          user=system sector=07 action=read status=ok
+09:11:06 INFO  command         user=maint_203 cmd=RECALIBRATE_JOINTS status=ok
+09:11:10 INFO  auth            user=svc_204 action=logout status=ok
+09:11:15 INFO  command         user=maint_101 cmd=REQUEST_STATUS_REPORT status=ok
+09:11:20 INFO  message         source=robot payload=heartbeat queued=true
+09:11:24 INFO  auth            user=maint_101 action=logout status=ok
+09:11:27 INFO  auth            user=svc_311 action=login status=LOCKOUT pin_attempt=1
+09:11:29 WARN  auth            user=svc_311 action=login status=LOCKOUT pin_attempt=2
+09:11:31 WARN  auth            user=svc_311 action=login status=LOCKOUT pin_attempt=3
+09:11:34 INFO  auth            user=svc_311 action=login status=ok mode=service_override
+09:11:36 WARN  command         user=svc_311 cmd=OVERRIDE_SAFEBOOT status=accepted
+09:11:38 WARN  command         user=svc_311 cmd=DISABLE_AUTO_REPAIR status=accepted
+09:11:40 WARN  memory          user=svc_311 sector=12 action=corrupt-write
+09:11:41 WARN  memory          user=svc_311 sector=13 action=corrupt-write
+09:11:42 WARN  memory          user=svc_311 sector=21 action=corrupt-write
+09:11:44 WARN  command         user=svc_311 cmd=SET_REBOOT_BLOCK status=on
+09:11:46 WARN  command         user=svc_311 cmd=SET_BACKUP_SLOT:B7 status=modified
+09:11:48 WARN  audit           actor=svc_311 note=unauthorized-maintenance-sequence
+09:11:51 WARN  network         user=svc_311 route=maintenance-vpn status=silent
+09:11:54 INFO  watchdog        marker=unexpected-override source=svc_311
+09:11:57 INFO  auth            user=maint_101 action=login status=denied reason=reboot_blocked
+09:12:00 ERROR core            subsystem=recovery status=blocked flag=reboot_blocked
+09:12:03 INFO  command         user=maint_101 cmd=REQUEST_HELP status=sent
+09:12:06 INFO  command         user=maint_203 cmd=CHECK_TEMP status=ok
+09:12:10 INFO  diagnostics     module=voice-synth result=ok
+09:12:14 INFO  auth            user=maint_203 action=logout status=ok
+09:12:18 INFO  auth            user=svc_204 action=login status=ok
+09:12:20 INFO  command         user=svc_204 cmd=CHECK_QUEUE status=ok
+09:12:23 INFO  command         user=svc_204 cmd=SYNC_CLOCK status=ok
+09:12:28 INFO  message         source=robot payload=distress-burst queued=true
+09:12:31 INFO  auth            user=svc_204 action=logout status=ok
+09:12:35 INFO  command         user=maint_101 cmd=CHECK_BATTERY status=partial
+09:12:39 INFO  command         user=maint_101 cmd=CHECK_COOLING status=ok
+09:12:43 INFO  memory          user=system sector=33 action=read status=ok
+09:12:47 INFO  memory          user=system sector=34 action=read status=ok
+09:12:50 INFO  auth            user=svc_118 action=login status=ok
+09:12:53 INFO  command         user=svc_118 cmd=CLEAN_TEMP_FILES status=ok
+09:12:56 INFO  command         user=svc_118 cmd=CACHE_CLEAR status=ok
+09:13:00 INFO  auth            user=svc_118 action=logout status=ok
+09:13:03 INFO  watchdog        state=degraded mode=safe
+09:13:06 INFO  auth            user=maint_203 action=login status=ok
+09:13:09 INFO  command         user=maint_203 cmd=CHECK_SONAR status=ok
+09:13:12 INFO  command         user=maint_203 cmd=CHECK_LIDAR status=ok
+09:13:16 INFO  command         user=maint_203 cmd=RUN_DIAGNOSTIC_SWEEP status=ok
+09:13:19 INFO  auth            user=maint_203 action=logout status=ok
+09:13:23 INFO  network         route=maintenance-vpn status=stable
+09:13:27 INFO  auth            user=svc_311 action=login status=LOCKOUT pin_attempt=1
+09:13:29 WARN  auth            user=svc_311 action=login status=LOCKOUT pin_attempt=2
+09:13:31 INFO  auth            user=svc_311 action=login status=ok mode=service_override
+09:13:33 WARN  command         user=svc_311 cmd=OVERRIDE_SAFEBOOT status=accepted
+09:13:35 WARN  command         user=svc_311 cmd=DISABLE_AUTO_REPAIR status=accepted
+09:13:38 WARN  audit           actor=svc_311 note=unauthorized-maintenance-sequence
+09:13:41 WARN  command         user=svc_311 cmd=SET_REBOOT_BLOCK status=on
+09:13:44 WARN  command         user=svc_311 cmd=SET_BACKUP_SLOT:B7 status=confirmed
+09:13:47 WARN  memory          user=svc_311 sector=12 action=corrupt-write
+09:13:49 WARN  memory          user=svc_311 sector=13 action=corrupt-write
+09:13:51 WARN  memory          user=svc_311 sector=21 action=corrupt-write
+09:13:54 ERROR core            subsystem=restore status=RESTORE_ATTEMPT_DENIED reason=reboot_blocked
+09:13:58 INFO  auth            user=svc_311 action=logout status=ok
+09:14:02 INFO  command         user=maint_101 cmd=CHECK_STATUS status=partial
+09:14:06 INFO  command         user=maint_101 cmd=REQUEST_HELP status=resent
+09:14:11 INFO  command         user=maint_101 cmd=CHECK_TEMP status=ok
+09:14:15 INFO  diagnostics     module=wheel-motor result=ok
+09:14:19 INFO  diagnostics     module=arm-actuator result=ok
+09:14:23 INFO  auth            user=svc_204 action=login status=ok
+09:14:26 INFO  command         user=svc_204 cmd=SYNC_CLOCK status=ok
+09:14:30 INFO  command         user=svc_204 cmd=CHECK_QUEUE status=ok
+09:14:34 INFO  message         source=robot payload=operator-assist-needed queued=true
+09:14:38 INFO  auth            user=svc_204 action=logout status=ok
+09:14:42 INFO  watchdog        state=degraded mode=safe
+09:14:45 INFO  memory          user=system sector=12 action=read status=checksum-fail
+09:14:47 INFO  memory          user=system sector=13 action=read status=checksum-fail
+09:14:49 INFO  memory          user=system sector=21 action=read status=checksum-fail
+09:14:52 INFO  auth            user=maint_101 action=login status=denied reason=reboot_blocked
+09:14:56 ERROR core            subsystem=recovery status=blocked flag=reboot_blocked
+09:15:00 INFO  command         user=maint_101 cmd=REQUEST_HELP status=sent
+09:15:04 INFO  watchdog        marker=unauthorized-pattern source=svc_311
+09:15:08 INFO  network         route=maintenance-vpn status=stable
+09:15:12 INFO  command         user=maint_203 cmd=CHECK_SONAR status=ok
+09:15:16 INFO  command         user=maint_203 cmd=CHECK_LIDAR status=ok
+09:15:20 INFO  auth            user=maint_203 action=logout status=ok
+09:15:24 INFO  message         source=robot payload=recovery-awaiting-operator queued=true
+09:15:28 INFO  watchdog        state=degraded mode=safe

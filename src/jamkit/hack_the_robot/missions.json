@@ -1,0 +1,252 @@
+{
+    "workshop_id": "hack_the_robot",
+    "robot_name": "JAMBOT-7",
+    "connect_lines": [
+        "Boot sequence link requested...",
+        "Secure tunnel established.",
+        "Warning: recovery mode active.",
+        "Corruption markers detected in command memory.",
+        "Friendly unit online in SAFE MODE. Operator assistance required."
+    ],
+    "assets": {
+        "msg_1": {
+            "type": "string",
+            "label": "Distress Burst",
+            "address": "0xA1-11",
+            "description": "Last outgoing message before corruption.",
+            "value": "DIFDL UIF MPHT! VOVTVBM BDUJWJUZ EFUFDUFE. MPPL GPS MPHT DPOUBJOJOH MPDLPVU, PWFSSJEF, PS VOBVUIPSJTFE."
+        },
+        "logs_1": {
+            "type": "lines_file",
+            "label": "Command Logs (Segment A)",
+            "address": "0xB7-44",
+            "description": "Historical command events from maintenance channels.",
+            "path": "data/logs_1.txt"
+        },
+        "pin_parts_1": {
+            "type": "dict",
+            "value": {
+                "user_id": "svc_311",
+                "prefixes": [
+                    "39",
+                    "40",
+                    "41",
+                    "42",
+                    "43"
+                ],
+                "suffixes": [
+                    "12",
+                    "57",
+                    "81",
+                    "99"
+                ]
+            }
+        },
+        "account_1": {
+            "type": "dict",
+            "label": "Compromised Service Account",
+            "address": "0xD9-02",
+            "description": "Profile and sabotage flags for the rogue account.",
+            "value": {
+                "user_id": "svc_311",
+                "display_name": "Remote Repair Service",
+                "role": "maintenance",
+                "reboot_blocked": true,
+                "backup_slots": [
+                    {
+                        "slot_id": "A2",
+                        "status": "corrupt",
+                        "integrity": 22
+                    },
+                    {
+                        "slot_id": "B7",
+                        "status": "ready",
+                        "integrity": 94
+                    },
+                    {
+                        "slot_id": "C1",
+                        "status": "ready",
+                        "integrity": 67
+                    }
+                ],
+                "corrupted_sector_groups": [
+                    [
+                        12,
+                        13,
+                        21
+                    ],
+                    [
+                        21,
+                        22
+                    ],
+                    [
+                        13,
+                        30
+                    ]
+                ],
+                "last_override_command": "OVERRIDE_SAFEBOOT",
+                "sabotage_note": "auto-repair disabled by unauthorized service routine"
+            }
+        },
+        "pin_table_internal": {
+            "type": "dict",
+            "export": false,
+            "value": {
+                "svc_311": "4281"
+            }
+        }
+    },
+    "missions": [
+        {
+            "id": "MISSION 1",
+            "title": "Recover and decode the distress message",
+            "intro": [
+                "A distress message was saved just before JAMBOT-7 was compromised.",
+                "For decoding method and character-shift functions, refer to Manual Section 1.1 (Shifted Messages).",
+                "Submit the fully decoded message text."
+            ],
+            "assets": [
+                "msg_1"
+            ],
+            "hints": [
+                "If output is close but wrong, confirm you only shift letters and leave spaces/punctuation unchanged.",
+                "Decode the entire message before submit; partial decoding will fail validation.",
+                "Use robot.show(decoded) and compare your result against the story clue wording."
+            ],
+            "expected_answer": "Check the logs! Unusual activity detected. look for logs containing LOCKOUT, override, or unauthorised.",
+            "validator": "case_insensitive",
+            "success_lines": [
+                "Distress message restored.",
+                "New clue: inspect command logs for suspicious service activity."
+            ],
+            "failure_lines": [
+                "Decoded output does not match recovered memory text."
+            ]
+        },
+        {
+            "id": "MISSION 2",
+            "title": "Search the command logs",
+            "intro": [
+                "Use logs_1 to find suspicious commands and identify the rogue service account user id.",
+                "Refer to Manual Sections 2.1-2.3 for loop/filter/extract patterns for log data.",
+                "Submit only the rogue user id."
+            ],
+            "assets": [
+                "logs_1"
+            ],
+            "hints": [
+                "Substring checks are case-sensitive; include both uppercase and lowercase variants if needed.",
+                "Once you extract a confirmed user id, break early instead of scanning every remaining line.",
+                "Submit only the id token (for example: svc_311), not the full log line."
+            ],
+            "expected_answer": "svc_311",
+            "validator": "case_insensitive",
+            "success_lines": [
+                "Rogue service account confirmed: svc_311.",
+                "Next step: reconstruct its repair PIN to unlock settings."
+            ],
+            "failure_lines": [
+                "User id not recognized as the rogue service account."
+            ]
+        },
+        {
+            "id": "MISSION 3",
+            "title": "Reconstruct the split repair PIN",
+            "intro": [
+                "The rogue account PIN is fragmented in memory.",
+                "Use pin_parts_1 to generate candidate PINs from prefix + suffix combinations.",
+                "Refer to Manual Sections 3.1-3.3 for dictionary access, nested loops, and candidate checks.",
+                "Test each candidate with robot.check_pin(rogue_user_id, candidate) and submit the valid PIN."
+            ],
+            "assets": [
+                "pin_parts_1"
+            ],
+            "hints": [
+                "Create local variables for prefixes and suffixes first to keep nested loops readable.",
+                "Keep candidate values as strings when combining prefix + suffix.",
+                "When a PIN succeeds, break inner loop and then break outer loop too."
+            ],
+            "metadata": {
+                "user_id": "svc_311"
+            },
+            "expected_answer": "4281",
+            "validator": {
+                "name": "pin_match",
+                "params": {
+                    "user_id": "svc_311"
+                }
+            },
+            "success_lines": [
+                "PIN reconstructed from fragmented memory.",
+                "Privileged service access restored."
+            ],
+            "failure_lines": [
+                "PIN is not valid for the target service account."
+            ]
+        },
+        {
+            "id": "MISSION 4",
+            "title": "Assemble the recovery profile",
+            "intro": [
+                "Now inspect account_1 to prepare a full recovery profile.",
+                "Refer to Manual Sections 4.1-4.3 for choosing best backup slot and cleaning sector targets.",
+                "Choose the best backup slot from backup_slots: status must be 'ready' and integrity must be highest.",
+                "Collect all sectors from corrupted_sector_groups, remove duplicates, sort them, and submit a recovery profile dict."
+            ],
+            "assets": [
+                "account_1"
+            ],
+            "hints": [
+                "If no slot is selected, check your ready-status filter and best-slot comparison logic.",
+                "repair_targets must be both unique and sorted for validation to pass reliably.",
+                "Submit a dict with exact keys: backup_slot and repair_targets."
+            ],
+            "expected_answer": {
+                "backup_slot": "B7",
+                "repair_targets": [
+                    12,
+                    13,
+                    21,
+                    22,
+                    30
+                ]
+            },
+            "validator": "recovery_profile",
+            "success_lines": [
+                "Recovery profile validated.",
+                "Backup slot and repair targets locked for final restore."
+            ],
+            "failure_lines": [
+                "Recovery profile invalid.",
+                "Submit {'backup_slot': <slot>, 'repair_targets': <sorted unique list>}."
+            ]
+        },
+        {
+            "id": "MISSION 5",
+            "title": "Build and submit the restore command",
+            "intro": [
+                "Write a Python function that builds the final restore command using the data you recovered.",
+                "Refer to Manual Sections 5.1-5.3 (and 4.1 for dictionary key access reminders).",
+                "Command format: RESTORE --user <id> --pin <pin> --slot <slot> --targets <csv> --repair",
+                "Submit the command string to trigger final reboot."
+            ],
+            "assets": [
+                "account_1"
+            ],
+            "hints": [
+                "Build the targets CSV in a separate variable first, then place it into the command string.",
+                "Ensure there are no extra spaces, missing flags, or line breaks in the final command.",
+                "Use robot.show(command) to verify final flag order before submitting."
+            ],
+            "expected_answer": "RESTORE --user svc_311 --pin 4281 --slot B7 --targets 12,13,21,22,30 --repair",
+            "validator": "restore_command",
+            "success_lines": [
+                "Recovery command accepted.",
+                "Starting full system restore."
+            ],
+            "failure_lines": [
+                "Restore command format invalid."
+            ]
+        }
+    ]
+}
