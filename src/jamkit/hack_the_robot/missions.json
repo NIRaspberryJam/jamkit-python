@@ -134,6 +134,12 @@
             "assets": [
                 "logs_1"
             ],
+            "metadata": {
+                "show_check_mode": "asset_or_member",
+                "show_member_asset_names": [
+                    "logs_1"
+                ]
+            },
             "hints": [
                 "Substring checks are case-sensitive; include both uppercase and lowercase variants if needed.",
                 "Once you extract a confirmed user id, break early instead of scanning every remaining line.",
@@ -186,39 +192,29 @@
         },
         {
             "id": "MISSION 4",
-            "title": "Assemble the recovery profile",
+            "title": "Identify the recovery backup slot",
             "intro": [
-                "Now inspect account_1 to prepare a full recovery profile.",
-                "Refer to Manual Sections 4.1-4.3 for choosing best backup slot and cleaning sector targets.",
-                "Choose the best backup slot from backup_slots: status must be 'ready' and integrity must be highest.",
-                "Collect all sectors from corrupted_sector_groups, remove duplicates, sort them, and submit a recovery profile dict."
+                "Inspect account_1 and identify the correct backup slot for restore.",
+                "Refer to Manual Section 4.1 for reading slot records and choosing the best valid slot.",
+                "Submit only the backup slot id."
             ],
             "assets": [
                 "account_1"
             ],
             "hints": [
-                "If no slot is selected, check your ready-status filter and best-slot comparison logic.",
-                "repair_targets must be both unique and sorted for validation to pass reliably.",
-                "Submit a dict with exact keys: backup_slot and repair_targets."
+                "Read memory first, then inspect account_1['backup_slots'].",
+                "Only consider slots where status is 'ready'.",
+                "From ready slots, choose the one with the highest integrity and submit its slot_id."
             ],
-            "expected_answer": {
-                "backup_slot": "B7",
-                "repair_targets": [
-                    12,
-                    13,
-                    21,
-                    22,
-                    30
-                ]
-            },
-            "validator": "recovery_profile",
+            "expected_answer": "B7",
+            "validator": "case_insensitive",
             "success_lines": [
-                "Recovery profile validated.",
-                "Backup slot and repair targets locked for final restore."
+                "Backup slot confirmed: B7.",
+                "Recovery staging complete. Final command phase unlocked."
             ],
             "failure_lines": [
-                "Recovery profile invalid.",
-                "Submit {'backup_slot': <slot>, 'repair_targets': <sorted unique list>}."
+                "Submitted value is not the correct backup slot.",
+                "Submit only the slot id string (example format: B7)."
             ]
         },
         {
@@ -238,7 +234,7 @@
                 "Ensure there are no extra spaces, missing flags, or line breaks in the final command.",
                 "Use robot.show(command) to verify final flag order before submitting."
             ],
-            "expected_answer": "RESTORE --user svc_311 --pin 4281 --slot B7 --targets 12,13,21,22,30 --repair",
+            "expected_answer": "RESTORE --user svc_311 --pin 4281 --slot B7 --repair",
             "validator": "restore_command",
             "success_lines": [
                 "Recovery command accepted.",
