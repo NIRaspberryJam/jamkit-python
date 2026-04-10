@@ -30,6 +30,7 @@ class Robot:
         self._last_read_asset_name: str | None = None
         self._read_asset_names: set[str] = set()
         self._pin_attempt_count = 0
+        self._last_auto_checkpoint: tuple[int, Any] | None = None
 
     # Output Helpers
     def _line(self, text: str = "") -> None:
@@ -66,6 +67,38 @@ class Robot:
                 return asset
 
         return None
+
+    def _get_show_check_mode(self, mission: Mission) -> str:
+        mode = mission.metadata.get("show_check_mode", "asset_only")
+        if not isinstance(mode, str):
+            return "asset_only"
+        return mode.strip().lower()
+
+    def _value_is_from_assets(self, value: Any, asset_names: list[str]) -> bool:
+        for asset_name in asset_names:
+            asset = self.config.assets.get(asset_name)
+            if asset is None:
+                continue
+
+            asset_value = asset.value
+            if value is asset_value:
+                return True
+
+            if isinstance(asset_value, str):
+                if isinstance(value, str) and value and value in asset_value:
+                    return True
+                continue
+
+            if isinstance(asset_value, dict):
+                if value in asset_value.keys() or value in asset_value.values():
+                    return True
+                continue
+
+            if isinstance(asset_value, (list, tuple, set)):
+                if value in asset_value:
+                    return True
+
+        return False
     
     @property
     def finished(self) -> bool:
@@ -144,6 +177,7 @@ class Robot:
 
     def show(self, value: Any) -> None:
         resolved = self._resolve_asset(value)
+        is_input_asset = resolved is not None
 
         # If this is a known asset but it has not been read yet,
         # only reveal pointer metadata (address), not the value.
@@ -168,8 +202,31 @@ class Robot:
         else:
             self._line(str(value))
 
-        self._line()
-        self._line_with_robot_name("If this looks correct, use robot.submit(...)")
+        if self.finished or not self.connected:
+            return
+
+        mission = self.current_mission
+        check_mode = self._get_show_check_mode(mission)
+
+        if check_mode == "disabled":
+            return
+
+        silent_fail = is_input_asset
+
+        if check_mode in {"asset_or_member", "asset_or_contains"} and not silent_fail:
+            scope = mission.metadata.get("show_member_asset_names", mission.assets)
+            asset_names = scope if isinstance(scope, list) else mission.assets
+            silent_fail = self._value_is_from_assets(value, asset_names)
+
+        if check_mode == "always_feedback":
+            silent_fail = False
+
+        self._attempt_checkpoint(
+            value,
+            silent_fail=silent_fail,
+            announce_validation=False,
+            show_hint_prompt_on_fail=False,
+        )
     
     def hint(self) -> None:
         mission = self.current_mission
@@ -180,7 +237,7 @@ class Robot:
             self._line_with_robot_name(f"Hint: {mission.hints[idx]}")
             self.hint_index_by_mission[mission.id] = idx + 1
         else:
-            self._line_with_robot_name("No more hits available for this mission.")
+            self._line_with_robot_name("No more hints available for this mission.")
 
     def _is_valid_pin(self, user_id: str, pin: str) -> bool:
         internal = self.config.assets.get("pin_table_internal")
@@ -201,7 +258,7 @@ class Robot:
         ok = self._is_valid_pin(str(user_id), pin_text)
 
         self._line()
-        self._line_with_robot_name(f"PIN check ${self._pin_attempt_count}: user_id={user_id}, pin={pin_text}")
+        self._line_with_robot_name(f"PIN check #{self._pin_attempt_count}: user_id={user_id}, pin={pin_text}")
 
         if ok:
             self._line_with_robot_name("PIN accepted. Access channel recovered.")
@@ -209,13 +266,22 @@ class Robot:
             self._line_with_robot_name("PIN rejected. Try another candidate.")
         return ok
     
-    def submit(self, answer: Any) -> bool:
+    def _attempt_checkpoint(
+        self,
+        answer: Any,
+        *,
+        silent_fail: bool,
+        announce_validation: bool,
+        show_hint_prompt_on_fail: bool,
+    ) -> bool:
         if not self.connected:
-            self._line_with_robot_name("Connect first with robot.connect().")
+            if not silent_fail:
+                self._line_with_robot_name("Connect first with robot.connect().")
             return False
 
         if self.finished:
-            self._line_with_robot_name("All missions are already complete.")
+            if not silent_fail:
+                self._line_with_robot_name("All missions are already complete.")
             return False
 
         mission = self.current_mission
@@ -228,11 +294,13 @@ class Robot:
             robot=self,
         )
 
-        self._line()
-        self._line_with_robot_name("Validating submission...")
-        time.sleep(self.validation_delay)
+        if announce_validation:
+            self._line()
+            self._line_with_robot_name("Validating submission...")
+            time.sleep(self.validation_delay)
 
         if ok:
+            completed_index = self.current_mission_index
             if mission.success_lines:
                 self._block_with_robot_name(mission.success_lines)
             else:
@@ -243,15 +311,38 @@ class Robot:
                 self.show_mission()
             else:
                 self._final_reboot()
+
+            if not announce_validation:
+                self._last_auto_checkpoint = (completed_index, answer)
+            else:
+                self._last_auto_checkpoint = None
             return True
+
+        if silent_fail:
+            return False
 
         if mission.failure_lines:
             self._block_with_robot_name(mission.failure_lines)
         else:
             self._line_with_robot_name("Submission incorrect.")
 
-        self._line_with_robot_name("Use robot.hint() if you are stuck.")
+        if show_hint_prompt_on_fail:
+            self._line_with_robot_name("Use robot.hint() if you are stuck.")
         return False
+
+    def submit(self, answer: Any) -> bool:
+        if self._last_auto_checkpoint is not None:
+            completed_index, completed_answer = self._last_auto_checkpoint
+            if self.current_mission_index == completed_index + 1 and answer == completed_answer:
+                self._last_auto_checkpoint = None
+                return True
+
+        return self._attempt_checkpoint(
+            answer,
+            silent_fail=False,
+            announce_validation=True,
+            show_hint_prompt_on_fail=True,
+        )
     
     def _final_reboot(self) -> None:
         old_typing_delay = self.typing_delay

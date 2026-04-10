@@ -55,25 +55,12 @@ def restore_command_match(expected: Any, actual: Any, mission: Mission, robot: A
     
     return expected_tokens == actual_tokens
 
-def recovery_profile_match(expected, actual, mission, robot):
-    if not isinstance(expected, dict) or not isinstance(actual, dict):
-        return False
-    
-    exp_slot = str(expected.get("backup_slot", "")).strip().upper()
-    act_slot = str(actual.get("backup_slot", "")).strip().upper()
-
-    exp_targets = str(expected.get("repair_targets", []))
-    act_targets = str(actual.get("repair_targets", []))
-
-    return exp_slot == act_slot and exp_targets == act_targets
-
 
 VALIDATORS: dict[str, Validator] = {
     "exact": exact_match,
     "case_insensitive": case_insensitive_match,
     "pin_match": pin_match,
     "restore_command": restore_command_match,
-    "recovery_profile": recovery_profile_match
 }
 
 def validate_submission(mission: Mission, expected: Any, actual: Any, robot: Any) -> bool:

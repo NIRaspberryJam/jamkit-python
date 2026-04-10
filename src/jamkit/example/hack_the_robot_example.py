@@ -1,9 +1,12 @@
+# Base Code
 from jamkit.hack_the_robot import Robot, msg_1, logs_1, pin_parts_1, account_1
 
 robot = Robot()
 robot.connect()
 
-robot.hint()
+robot.hint() # hints are optional
+
+# Mission 1
 robot.read_memory(msg_1)
 robot.show(msg_1)
 
@@ -15,11 +18,12 @@ for ch in msg_1:
         decoded += ch
 
 robot.show(decoded)
-robot.submit(decoded)
 
+# Mission 2
 robot.read_memory(logs_1)
 
 for line in logs_1:
+    robot.show(line)
     if "LOCKOUT" in line or "override" in line:
         parts = line.split()
         for part in parts:
@@ -28,8 +32,8 @@ for line in logs_1:
                 break
 
 robot.show(user_id)
-robot.submit(user_id)
 
+# Mission 3
 robot.read_memory(pin_parts_1)
 robot.show(pin_parts_1)
 
@@ -44,13 +48,12 @@ for prefix in prefixes:
             found_pin = candidate
 
 robot.show(found_pin)
-robot.submit(found_pin)
 
+# Mission 4
 robot.read_memory(account_1)
 robot.show(account_1)
 
 backup_slots = account_1["backup_slots"]
-sector_groups = account_1["corrupted_sector_groups"]
 
 best = None
 for slot in backup_slots:
@@ -63,26 +66,6 @@ for slot in backup_slots:
 backup_slot = best["slot_id"]
 robot.show(backup_slot)
 
-unique = set()
-for group in sector_groups:
-    for sector in group:
-        unique.add(sector)
-
-repair_targets = sorted(unique)
-robot.show(repair_targets)
-
-recovery_profile = {
-    "backup_slot": backup_slot,
-    "repair_targets": repair_targets
-}
-robot.show(recovery_profile)
-robot.submit(recovery_profile)
-
-numbers = recovery_profile["repair_targets"]
-csv_text = ",".join(str(n) for n in numbers)
-robot.show(csv_text)
-
-command = f"RESTORE --user {user_id} --pin {found_pin} --slot {recovery_profile['backup_slot']} --targets {csv_text} --repair"
+# Mission 5
+command = f"RESTORE --user {user_id} --pin {found_pin} --slot {backup_slot} --repair"
 robot.show(command)
-robot.submit(command)
-
